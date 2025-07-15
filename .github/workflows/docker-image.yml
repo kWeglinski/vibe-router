@@ -39,7 +39,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: kweglinski/vibe-router
+          images: kweg/vibe-router
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5

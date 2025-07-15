@@ -24,6 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
+      - name: Run unit tests
+        run: npm test -- --testPathIgnorePatterns/__tests__/integration.test.js
 

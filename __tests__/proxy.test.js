@@ -6,8 +6,18 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
-const { loadConfig } = require('../config');
+const { loadConfig, ensureTrailingSlash } = require('../config');
 const { replaceModelName, getAvailableModels } = require('../modelMapper');
+
+/**
+ * Construct full URL for inference server
+ * @param {string} baseUrl - Base URL of inference server
+ * @param {string} endpoint - API endpoint (e.g., 'completions')
+ * @returns {string} Full URL
+ */
+function constructInferenceUrl(baseUrl, endpoint) {
+  return `${baseUrl}${endpoint}`;
+}
 
 jest.mock('axios');
 jest.mock('../config');
@@ -41,7 +51,7 @@ describe('Proxy Server', () => {
         // Replace model name in the request
         const modifiedReq = replaceModelName(req, { thinker: 'actual-model' });
 
-        console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: http://mock-server:5004completions`);
+        console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${constructInferenceUrl('http://mock-server:5004', 'completions')}`);
 
         // Prepare axios configuration
         const axiosConfig = {};
@@ -52,7 +62,7 @@ describe('Proxy Server', () => {
         }
 
         // Forward the request to the inference server
-        const response = await axios.post('http://mock-server:5004completions', modifiedReq.body, axiosConfig);
+        const response = await axios.post(constructInferenceUrl('http://mock-server:5004', 'completions'), modifiedReq.body, axiosConfig);
 
         // Send the response back to client
         res.json(response.data);

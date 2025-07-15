@@ -3,6 +3,15 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * Ensure URL ends with a slash
+ * @param {string} url - The base URL
+ * @returns {string} URL with trailing slash
+ */
+function ensureTrailingSlash(url) {
+  return url.endsWith('/') ? url : `${url}/`;
+}
+
+/**
  * Load configuration from JSON file
  * @param {string} configPath - Path to config.json
  * @returns {{modelMapping: Object, inferenceServerUrl: string, baseUrl: string, apiKey: string}}
@@ -18,7 +27,7 @@ function loadConfig(configPath) {
     if (baseUrl) {
       // Ensure base URL ends with a slash but doesn't have double slashes
       const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-      config.inferenceServerUrl = `${cleanBaseUrl}/`;
+      config.inferenceServerUrl = ensureTrailingSlash(cleanBaseUrl);
     }
 
     // Get API key from environment variable or config

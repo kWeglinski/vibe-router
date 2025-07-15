@@ -1,0 +1,15 @@
+
+{
+  "modelMapping": {
+    "thinker": "mistral-small:q4-mlx",
+    "creator": "dalle2:latest",
+    "whisperer": "whisper-large-v3"
+  },
+
+  "inferenceServerUrl": "http://localhost:5004",
+
+  "baseUrl": "",
+  "apiKey": ""
+
+
+}

@@ -13,6 +13,16 @@
 
 
 
+/**
+ * Construct full URL for inference server
+ * @param {string} baseUrl - Base URL of inference server
+ * @param {string} endpoint - API endpoint (e.g., 'completions')
+ * @returns {string} Full URL
+ */
+function constructInferenceUrl(baseUrl, endpoint) {
+  return `${baseUrl}${endpoint}`;
+}
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -68,7 +78,7 @@ app.post('/v1/completions', async (req, res) => {
     // Replace model name in the request
     const modifiedReq = replaceModelName(req);
 
-    console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${config.inferenceServerUrl}completions`);
+    console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${constructInferenceUrl(config.inferenceServerUrl, 'completions')}`);
 
     // Forward the request to the inference server
     const axiosConfig = {};
@@ -77,7 +87,7 @@ app.post('/v1/completions', async (req, res) => {
         'Authorization': `Bearer ${config.inferenceApiKey}`
       };
     }
-    const response = await axios.post(config.inferenceServerUrl + 'completions', modifiedReq.body, axiosConfig);
+    const response = await axios.post(constructInferenceUrl(config.inferenceServerUrl, 'completions'), modifiedReq.body, axiosConfig);
 
     // Send the response back to client
     res.json(response.data);

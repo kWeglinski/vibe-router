@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "working-proxy.js",
   "scripts": {
-    "start": "node working-proxy-refactored.js",
+    "start": "node working-proxy.js",
     "test": "jest --verbose"
   },
   "keywords": [],

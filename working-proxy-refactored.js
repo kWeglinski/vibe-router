@@ -8,6 +8,16 @@ const cors = require('cors');
 const { loadConfig } = require('./config');
 const { replaceModelName, getAvailableModels } = require('./modelMapper');
 
+/**
+ * Construct full URL for inference server
+ * @param {string} baseUrl - Base URL of inference server
+ * @param {string} endpoint - API endpoint (e.g., 'completions')
+ * @returns {string} Full URL
+ */
+function constructInferenceUrl(baseUrl, endpoint) {
+  return `${baseUrl}${endpoint}`;
+}
+
 // Load configuration
 let config;
 try {
@@ -36,7 +46,7 @@ async function handleCompletionsRequest(req, res) {
     // Replace model name in the request
     const modifiedReq = replaceModelName(req, config.modelMapping);
 
-    console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${config.inferenceServerUrl}completions`);
+    console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${constructInferenceUrl(config.inferenceServerUrl, 'completions')}`);
 
     // Prepare axios configuration
     const axiosConfig = {};
@@ -47,7 +57,7 @@ async function handleCompletionsRequest(req, res) {
     }
 
     // Forward the request to the inference server
-    const response = await axios.post(config.inferenceServerUrl + 'completions', modifiedReq.body, axiosConfig);
+    const response = await axios.post(constructInferenceUrl(config.inferenceServerUrl, 'completions'), modifiedReq.body, axiosConfig);
 
     // Send the response back to client
     res.json(response.data);

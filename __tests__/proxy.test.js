@@ -1,9 +1,8 @@
 
 
-
 const request = require('supertest');
 const express = require('express');
-const bodyParser = require('body-parser');
+
 const axios = require('axios');
 const cors = require('cors');
 
@@ -12,7 +11,6 @@ const { replaceModelName, getAvailableModels } = require('../modelMapper');
 
 jest.mock('axios');
 jest.mock('../config');
-jest.mock('../modelMapper');
 
 describe('Proxy Server', () => {
   let app;
@@ -28,12 +26,18 @@ describe('Proxy Server', () => {
 
     // Create the Express app
     app = express();
-    app.use(bodyParser.json());
+    // Use raw body parser for testing
+    app.use(express.json());
     app.use(cors({ origin: '*' }));
 
     // Setup the route
     app.post('/v1/completions', async (req, res) => {
       try {
+        // Ensure req.body exists
+        if (!req.body) {
+          throw new Error('Request body is undefined');
+        }
+
         // Replace model name in the request
         const modifiedReq = replaceModelName(req, { thinker: 'actual-model' });
 
@@ -46,16 +50,6 @@ describe('Proxy Server', () => {
             'Authorization': `Bearer test-api-key`
           };
         }
-
-        // Mock the axios response
-        const mockResponse = {
-          data: {
-            id: 'mock-id',
-            model: 'actual-model',
-            choices: [{ text: 'Mock response' }]
-          }
-        };
-        axios.post.mockResolvedValue(mockResponse);
 
         // Forward the request to the inference server
         const response = await axios.post('http://mock-server:5004completions', modifiedReq.body, axiosConfig);
@@ -76,7 +70,22 @@ describe('Proxy Server', () => {
     server.close(done);
   });
 
+  beforeEach(() => {
+    // Reset axios mock before each test
+    axios.post.mockReset();
+  });
+
   test('should replace model name and forward request', async () => {
+    // Mock the axios response
+    const mockResponse = {
+      data: {
+        id: 'mock-id',
+        model: 'actual-model',
+        choices: [{ text: 'Mock response' }]
+      }
+    };
+    axios.post.mockResolvedValue(mockResponse);
+
     const response = await request(app)
       .post('/v1/completions')
       .send({ model: 'thinker', prompt: 'Hello' })
@@ -95,6 +104,16 @@ describe('Proxy Server', () => {
   });
 
   test('should handle missing model name', async () => {
+    // Mock the axios response
+    const mockResponse = {
+      data: {
+        id: 'mock-id',
+        model: 'actual-model',
+        choices: [{ text: 'Mock response' }]
+      }
+    };
+    axios.post.mockResolvedValue(mockResponse);
+
     const response = await request(app)
       .post('/v1/completions')
       .send({ prompt: 'Hello' })
@@ -103,7 +122,7 @@ describe('Proxy Server', () => {
     expect(response.status).toBe(200);
     // Verify that axios was called with the original model name
     expect(axios.post).toHaveBeenCalled();
-    const axiosCall = axios.post.mock.calls[1];
+    const axiosCall = axios.post.mock.calls[0];
     expect(axiosCall[1].model).toBeUndefined();
   });
 
@@ -120,6 +139,4 @@ describe('Proxy Server', () => {
     expect(response.body.error).toBe('Internal server error');
   });
 });
-
-
 

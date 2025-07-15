@@ -16,7 +16,7 @@
 
 
 # Use the official Node.js 18 image as a base
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -25,7 +25,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --production
 
 # Copy the rest of the application code
 COPY . .
@@ -38,8 +38,9 @@ EXPOSE 3001
 # Environment variable for base URL
 
 
-ENV INFERENCE_BASE_URL="http://inference-server:5004"
-ENV INFERENCE_API_KEY="your-api-key-here"
+# Environment variables should be provided at runtime
+# ENV INFERENCE_BASE_URL="http://inference-server:5004"
+# ENV INFERENCE_API_KEY="your-api-key-here"
 
 
 

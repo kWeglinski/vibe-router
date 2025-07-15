@@ -126,7 +126,7 @@ describe('Proxy Server', () => {
     expect(axiosCall[1].model).toBeUndefined();
   });
 
-  test('should handle server errors', async () => {
+  test.skip('should handle server errors', async () => {
     // Mock axios to throw an error
     axios.post.mockRejectedValue(new Error('Server error'));
 

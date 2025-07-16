@@ -61,14 +61,60 @@ curl -X POST http://localhost:3001/v1/completions \
   -d '{"model": "thinker", "prompt": "Hello, world!"}'
 ```
 
-## Docker Deployment
+## Docker Deployment with Docker Compose
+
+### Prerequisites
+
+Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed.
+
+### Build and Run with Default Configuration
+
+If you have a `config.json` file in your current directory:
 
 ```bash
-docker build -t vibe-router:latest .
-docker run -p 3001:3001 \
-  -e INFERENCE_BASE_URL="http://your-inference-server:5004" \
-  -e INFERENCE_API_KEY="your-api-key-here" \
-  vibe-router:latest
+docker-compose up --build
+```
+
+### Run with Custom Configuration File
+
+To use a different configuration file, create a `docker-compose.override.yml` file:
+
+```yaml
+version: '3.8'
+
+services:
+  vibe-router:
+    volumes:
+      - /path/to/your/custom-config.json:/usr/src/app/config.json
+```
+
+Then run:
+
+```bash
+docker-compose up --build
+```
+
+### Run with Environment Variables
+
+You can override configuration values using environment variables. Create a `.env` file:
+
+```ini
+INFERENCE_BASE_URL=http://your-inference-server:5004
+INFERENCE_API_KEY=your-api-key-here
+```
+
+Then run:
+
+```bash
+docker-compose up --build
+```
+
+### Stop the Services
+
+To stop the services, run:
+
+```bash
+docker-compose down
 ```
 
 ## Testing

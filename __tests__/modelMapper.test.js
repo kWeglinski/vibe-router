@@ -1,5 +1,7 @@
 
 
+
+
 const { replaceModelName, getAvailableModels } = require('../modelMapper');
 
 describe('modelMapper', () => {
@@ -48,7 +50,8 @@ describe('modelMapper', () => {
   });
 
   test('getAvailableModels should return array of friendly model names', () => {
-    const available = getAvailableModels(modelMapping);
+    const config = { modelMapping };
+    const available = getAvailableModels(config);
     expect(available).toEqual(['thinker', 'creator', 'whisperer']);
   });
 
@@ -56,5 +59,26 @@ describe('modelMapper', () => {
     const available = getAvailableModels({});
     expect(available).toEqual([]);
   });
+
+  test('getAvailableModels should work with new config structure', () => {
+    const newConfig = {
+      apis: { lmstudio: { baseUrl: 'http://localhost:1234/v1', apiKey: '' } },
+      models: {
+        thinker: { name: 'devstral-small-2507-mlx', api: 'lmstudio' },
+        coder: { name: 'mistral-small-3.2-24b-instruct-2506', api: 'lmstudio' }
+      }
+    };
+    const available = getAvailableModels(newConfig);
+    expect(available).toEqual(['thinker', 'coder']);
+  });
+
+  test('getAvailableModels should work with old config structure', () => {
+    const oldConfig = {
+      modelMapping: { thinker: 'model1', creator: 'model2' }
+    };
+    const available = getAvailableModels(oldConfig);
+    expect(available).toEqual(['thinker', 'creator']);
+  });
 });
+
 

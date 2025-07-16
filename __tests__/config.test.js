@@ -23,7 +23,38 @@ describe('config', () => {
     fs.readFileSync.mockClear();
   });
 
-  test('loadConfig should read and parse config file', () => {
+  test('loadConfig should read and parse config file with new structure', () => {
+    const mockConfig = JSON.stringify({
+      apis: {
+        lmstudio: {
+          baseUrl: 'http://localhost:1234/v1',
+          apiKey: 'test-key'
+        }
+      },
+      models: {
+        thinker: {
+          name: 'devstral-small-2507-mlx',
+          api: 'lmstudio'
+        },
+        coder: {
+          name: 'mistral-small-3.2-24b-instruct-2506',
+          api: 'lmstudio'
+        }
+      }
+    });
+
+    fs.readFileSync.mockReturnValue(mockConfig);
+
+    const config = loadConfig(mockConfigPath);
+    expect(config.modelMapping).toEqual({
+      thinker: 'devstral-small-2507-mlx',
+      coder: 'mistral-small-3.2-24b-instruct-2506'
+    });
+    expect(config.inferenceServerUrl).toBe('http://localhost:1234/v1/');
+    expect(config.apiKey).toBe('test-key');
+  });
+
+  test('loadConfig should read and parse config file with old structure', () => {
     const mockConfig = JSON.stringify({
       modelMapping: { thinker: 'model1' },
       inferenceServerUrl: 'http://localhost:5004',

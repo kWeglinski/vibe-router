@@ -31,22 +31,9 @@ const path = require('path');
 
 let config;
 try {
+  const { loadConfig } = require('./config');
   const configPath = path.resolve(__dirname, 'config.json');
-  config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-
-  // Get base URL from environment variable or config
-  const baseUrl = process.env.INFERENCE_BASE_URL || config.baseUrl;
-  if (baseUrl) {
-    // Ensure base URL ends with a slash but doesn't have double slashes
-    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-    config.inferenceServerUrl = `${cleanBaseUrl}/`;
-  }
-
-  // Get API key from environment variable or config
-  const apiKey = process.env.INFERENCE_API_KEY || config.apiKey;
-  if (apiKey) {
-    config.inferenceApiKey = apiKey;
-  }
+  config = loadConfig(configPath);
 } catch (err) {
   console.error('Error reading config file:', err);
   process.exit(1);

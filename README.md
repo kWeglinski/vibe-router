@@ -14,6 +14,8 @@ Vibe Router is a Node.js proxy server for model inference requests that provides
 - **CORS Support**: Enables cross-origin requests for web applications
 - **Streaming Compatibility**: Designed to support streaming functionality
 - **Docker Ready**: Includes Dockerfile for containerization
+- **Comprehensive Logging**: Detailed request logging with request IDs, timestamps, and sensitive data redaction
+- **Monitoring Endpoints**: `/metrics` endpoint for system metrics in Prometheus format
 
 ## Installation
 
@@ -37,6 +39,32 @@ Create a `config.json` file with your model mappings and server configuration:
   "apiKey": ""
 }
 ```
+
+## Logging Configuration
+
+The logging system is configurable via `config.json`. Here's the default configuration:
+
+```json
+{
+  "logging": {
+    "level": "info",
+    "storage": "file",
+    "maxSize": "10MB",
+    "maxFiles": 5,
+    "redactHeaders": ["authorization", "api-key"],
+    "metricsEndpoint": "/metrics"
+  }
+}
+```
+
+### Logging Configuration Options:
+
+- `level`: Log level (info, warning, error)
+- `storage`: Log storage backend (file, database, etc.)
+- `maxSize`: Maximum log file size
+- `maxFiles`: Number of log files to retain
+- `redactHeaders`: Headers to redact in logs for security
+- `metricsEndpoint`: Endpoint for metrics collection
 
 ## Environment Variables
 
@@ -92,6 +120,19 @@ Then run:
 
 ```bash
 docker-compose up --build
+```
+
+## Monitoring Endpoints
+
+The proxy server exposes a `/metrics` endpoint that provides system metrics in Prometheus format. These metrics include:
+
+- **HTTP Request Metrics**: Count, duration, and size of HTTP requests
+- **System Resource Usage**: CPU and memory usage statistics
+
+You can access the metrics endpoint with:
+
+```bash
+curl http://localhost:3001/metrics
 ```
 
 ### Run with Environment Variables

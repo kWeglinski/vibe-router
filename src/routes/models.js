@@ -1,6 +1,9 @@
 
 
 
+
+const { logger } = require('../services/loggingService');
+
 /**
  * Handle models listing request
  * @param {Object} req - Express request object
@@ -8,7 +11,11 @@
  * @param {Object} config - Configuration object
  */
 const handleModelsRequest = (req, res, config) => {
+  const requestId = req.requestId || 'unknown';
+
   try {
+    logger().info(`Handling ${req.method} /v1/models request`, { requestId, clientIp: req.ip });
+
     const modelMapping = config.modelMapping || {};
     const modelsConfig = config.models || {};
 
@@ -33,12 +40,21 @@ const handleModelsRequest = (req, res, config) => {
       object: "list",
       data: models
     });
+
+    logger().info(`Successfully processed models request`, { requestId, count: models.length });
+
   } catch (error) {
-    console.error('Error listing models:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    logger().error(`Error listing models`, { requestId, error: error.message });
+
+    if (res.headersSent) {
+      logger().warning(`Headers already sent for request ${requestId}`, { requestId });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
 
 module.exports = { handleModelsRequest };
+
 
 

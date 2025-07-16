@@ -1,7 +1,7 @@
 
 
 
-const { replaceModelName, getAvailableModels } = require('../modelMapper');
+const { replaceModelName, getAvailableModels } = require('../src/models/modelMapper');
 
 describe('Unit Tests', () => {
   const mockRequest = (body) => ({

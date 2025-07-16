@@ -1,13 +1,17 @@
 
 
+
+
 const request = require('supertest');
 const express = require('express');
 
 const axios = require('axios');
 const cors = require('cors');
 
-const { loadConfig, ensureTrailingSlash } = require('../config');
-const { replaceModelName, getAvailableModels } = require('../modelMapper');
+jest.mock('../src/config/config');
+jest.mock('../src/models/modelMapper');
+const { loadConfig, ensureTrailingSlash } = require('../src/config/config');
+const { replaceModelName, getAvailableModels } = require('../src/models/modelMapper');
 
 /**
  * Construct full URL for inference server
@@ -20,7 +24,6 @@ function constructInferenceUrl(baseUrl, endpoint) {
 }
 
 jest.mock('axios');
-jest.mock('../config');
 
 describe('Proxy Server', () => {
   let app;
@@ -34,43 +37,27 @@ describe('Proxy Server', () => {
       inferenceApiKey: 'test-api-key'
     });
 
+    // Mock the model mapper
+    replaceModelName.mockImplementation((req, mapping) => {
+      const modifiedBody = JSON.parse(JSON.stringify(req.body));
+      if (modifiedBody.model && mapping[modifiedBody.model]) {
+        modifiedBody.model = mapping[modifiedBody.model];
+      }
+      return Object.assign({}, req, { body: modifiedBody });
+    });
+
     // Create the Express app
     app = express();
-    // Use raw body parser for testing
     app.use(express.json());
     app.use(cors({ origin: '*' }));
 
-    // Setup the route
-    app.post('/v1/completions', async (req, res) => {
-      try {
-        // Ensure req.body exists
-        if (!req.body) {
-          throw new Error('Request body is undefined');
-        }
-
-        // Replace model name in the request
-        const modifiedReq = replaceModelName(req, { thinker: 'actual-model' });
-
-        console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${constructInferenceUrl('http://mock-server:5004', 'completions')}`);
-
-        // Prepare axios configuration
-        const axiosConfig = {};
-        if ('test-api-key') {
-          axiosConfig.headers = {
-            'Authorization': `Bearer test-api-key`
-          };
-        }
-
-        // Forward the request to the inference server
-        const response = await axios.post(constructInferenceUrl('http://mock-server:5004', 'completions'), modifiedReq.body, axiosConfig);
-
-        // Send the response back to client
-        res.json(response.data);
-      } catch (error) {
-        console.error('Error proxying request:', error.message || error);
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    });
+    // Setup the route using our new handler
+    const { handleCompletionsRequest } = require('../src/routes/completions');
+    app.post('/v1/completions', (req, res) => handleCompletionsRequest(req, res, {
+      modelMapping: { thinker: 'actual-model' },
+      inferenceServerUrl: 'http://mock-server:5004',
+      inferenceApiKey: 'test-api-key'
+    }));
 
     // Start the server
     server = app.listen(3002);
@@ -149,4 +136,5 @@ describe('Proxy Server', () => {
     expect(response.body.error).toBe('Internal server error');
   });
 });
+
 

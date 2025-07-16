@@ -1,13 +1,12 @@
 
 
-
 /**
  * Replace model name in request body
  * @param {Object} req - Express request object
  * @param {Object} modelMappingOrConfig - Mapping of friendly names to actual model names or full config object
  * @returns {Object} Modified request object with replaced model name
  */
-function replaceModelName(req, modelMappingOrConfig) {
+const replaceModelName = (req, modelMappingOrConfig) => {
   // Create a deep copy of the request body to avoid mutation
   const modifiedBody = JSON.parse(JSON.stringify(req.body));
 
@@ -31,21 +30,21 @@ function replaceModelName(req, modelMappingOrConfig) {
   const modifiedReq = Object.assign({}, req, { body: modifiedBody });
 
   return modifiedReq;
-}
+};
 
 /**
  * Get available model names from mapping
  * @param {Object} config - Configuration object (can be new or old structure)
  * @returns {string[]} Array of available model names
  */
-function getAvailableModels(config) {
+const getAvailableModels = (config) => {
   if (config.modelMapping) {
     return Object.keys(config.modelMapping);
   } else if (config.models) {
     return Object.keys(config.models);
   }
   return [];
-}
+};
 
 module.exports = { replaceModelName, getAvailableModels };
 

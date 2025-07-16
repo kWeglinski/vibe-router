@@ -25,17 +25,19 @@ function constructInferenceUrl(baseUrl, endpoint) {
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
-const fs = require('fs');
 const path = require('path');
+
+const { loadConfig } = require('./src/config/config');
+const { getAvailableModels } = require('./src/models/modelMapper');
+const { handleCompletionsRequest } = require('./src/routes/completions');
+const { handleModelsRequest } = require('./src/routes/models');
 
 let config;
 try {
-  const { loadConfig } = require('./config');
   const configPath = path.resolve(__dirname, 'config.json');
   config = loadConfig(configPath);
 } catch (err) {
-  console.error('Error reading config file:', err);
+  console.error('Error reading config file:', err.message);
   process.exit(1);
 }
 
@@ -45,82 +47,17 @@ app.use(bodyParser.json());
 const cors = require('cors');
 app.use(cors({ origin: '*' }));
 
-// Helper function to replace model name
-function replaceModelName(request) {
-  if (!request.body || !request.body.model) {
-    return request;
-  }
+// Log available models
+console.log('Available models:', getAvailableModels(config));
 
-  const modelMapping = config.modelMapping;
-  if (modelMapping[request.body.model]) {
-    request.body.model = modelMapping[request.body.model];
-  }
+// Setup routes
+app.get('/v1/models', (req, res) => handleModelsRequest(req, res, config));
+app.post('/v1/completions', (req, res) => handleCompletionsRequest(req, res, config));
 
-  return request;
-}
-
-// Endpoint to list available models (OpenAI API compatible)
-app.get('/v1/models', (req, res) => {
-  try {
-    const modelMapping = config.modelMapping || {};
-    const modelsConfig = config.models || {};
-
-    // Format the response according to OpenAI API spec
-    const models = Object.keys(modelMapping).map(systemName => {
-      // Get the actual model name and API info
-      const actualModel = modelMapping[systemName];
-      const apiInfo = modelsConfig[systemName]?.api || null;
-
-      return {
-        id: systemName,
-        object: "model",
-        owned_by: "organization-name", // Default value as per OpenAI spec
-        additional: {
-          actual_model: actualModel,
-          api_name: apiInfo
-        }
-      };
-    });
-
-    res.json({
-      object: "list",
-      data: models
-    });
-  } catch (error) {
-    console.error('Error listing models:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Proxy endpoint for OpenAI-compatible API
-app.post('/v1/completions', async (req, res) => {
-  try {
-    // Replace model name in the request
-    const modifiedReq = replaceModelName(req);
-
-    console.log(`Forwarding POST /v1/completions request to inference server with model:`, modifiedReq.body.model, `URL: ${constructInferenceUrl(config.inferenceServerUrl, 'completions')}`);
-
-    // Forward the request to the inference server
-    const axiosConfig = {};
-    if (config.inferenceApiKey) {
-      axiosConfig.headers = {
-        'Authorization': `Bearer ${config.inferenceApiKey}`
-      };
-    }
-    const response = await axios.post(constructInferenceUrl(config.inferenceServerUrl, 'completions'), modifiedReq.body, axiosConfig);
-
-    // Send the response back to client
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error proxying request:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
+// Start the proxy server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Model proxy server running on port ${PORT}`);
-  console.log('Available models:', Object.keys(config.modelMapping));
 });
 
 

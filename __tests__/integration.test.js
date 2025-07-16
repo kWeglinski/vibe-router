@@ -22,8 +22,8 @@ describe('Integration Tests', () => {
 
   beforeAll((done) => {
     // Start the actual proxy server for integration testing
-    const { loadConfig } = require('../config');
-    const { replaceModelName, getAvailableModels } = require('../modelMapper');
+    const { loadConfig } = require('../src/config/config');
+    const { replaceModelName, getAvailableModels } = require('../src/models/modelMapper');
 
     const express = require('express');
     const bodyParser = require('body-parser');

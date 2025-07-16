@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { loadConfig } = require('../config');
+const { loadConfig } = require('../src/config/config');
 
 jest.mock('fs');
 

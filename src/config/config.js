@@ -7,9 +7,7 @@ const path = require('path');
  * @param {string} url - The base URL
  * @returns {string} URL with trailing slash
  */
-function ensureTrailingSlash(url) {
-  return url.endsWith('/') ? url : `${url}/`;
-}
+const ensureTrailingSlash = (url) => url.endsWith('/') ? url : `${url}/`;
 
 /**
  * Load configuration from JSON file
@@ -17,7 +15,7 @@ function ensureTrailingSlash(url) {
  * @returns {{modelMapping: Object, inferenceServerUrl: string, baseUrl: string, apiKey: string}}
  * @throws {Error} If config file cannot be read
  */
-function loadConfig(configPath) {
+const loadConfig = (configPath) => {
   try {
     const rawData = fs.readFileSync(configPath, 'utf8');
     let config = JSON.parse(rawData);
@@ -76,6 +74,6 @@ function loadConfig(configPath) {
   } catch (err) {
     throw new Error(`Error reading config file: ${err.message}`);
   }
-}
+};
 
-module.exports = { loadConfig };
+module.exports = { loadConfig, ensureTrailingSlash };

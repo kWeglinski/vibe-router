@@ -1,0 +1,16 @@
+
+version: '3.8'
+
+services:
+  vibe-router:
+    image: kweg/vibe-router:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./config.json:/usr/src/app/config.json
+    environment:
+      - INFERENCE_BASE_URL=${INFERENCE_BASE_URL}
+      - INFERENCE_API_KEY=${INFERENCE_API_KEY}

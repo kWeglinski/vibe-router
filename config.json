@@ -1,15 +1,25 @@
 
+
 {
-  "modelMapping": {
-    "thinker": "mistral-small:q4-mlx",
-    "creator": "dalle2:latest",
-    "whisperer": "whisper-large-v3"
+  "apis": {
+    "lmstudio": {
+      "baseUrl": "http://localhost:1234/v1",
+      "apiKey": ""
+    }
   },
-
-  "inferenceServerUrl": "http://localhost:5004",
-
-  "baseUrl": "",
-  "apiKey": ""
-
-
+  "models": {
+    "thinker": {
+      "name": "devstral-small-2507-mlx",
+      "api": "lmstudio"
+    },
+    "coder": {
+      "name": "mistral-small-3.2-24b-instruct-2506",
+      "api": "lmstudio"
+    },
+    "quick": {
+      "name": "qwen3-30b-a3b-dwq",
+      "api": "lmstudio"
+    }
+  }
 }
+

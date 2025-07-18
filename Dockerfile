@@ -15,8 +15,31 @@
 
 
 
-# Use the official Node.js 18 image as a base
+
+
+
+# Use the official Node.js 20 image as a base
+# Use the official Node.js 20 image as a base
 FROM node:20-alpine
+
+# Create non-root user with specific UID/GID to enhance security
+RUN adduser -D -u 1000 appuser && \
+    mkdir -p /usr/src/app && \
+    chown -R appuser:appuser /usr/src/app
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Switch to non-root user
+USER appuser
+
+# Create non-root user with specific UID/GID to enhance security
+RUN adduser -D -u 1000 appuser
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+
 
 # Set the working directory in the container
 WORKDIR /usr/src/app

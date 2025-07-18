@@ -20,6 +20,14 @@
       "name": "qwen3-30b-a3b-dwq",
       "api": "lmstudio"
     }
+  },
+  "logging": {
+    "level": "info",
+    "storage": "file",
+    "maxSize": "10MB",
+    "maxFiles": 5,
+    "redactHeaders": ["authorization", "api-key"],
+    "metricsEndpoint": "/metrics"
   }
 }
 

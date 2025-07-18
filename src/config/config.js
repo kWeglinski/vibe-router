@@ -10,6 +10,29 @@ const path = require('path');
 const ensureTrailingSlash = (url) => url.endsWith('/') ? url : `${url}/`;
 
 /**
+ * Merge default logging configuration with user-provided config
+ * @param {Object} config - User configuration
+ * @returns {Object} Merged configuration with default logging settings
+ */
+const mergeLoggingConfig = (config) => {
+  const defaultLoggingConfig = {
+    level: 'info',
+    storage: 'file',
+    maxSize: '10MB',
+    maxFiles: 5,
+    redactHeaders: ['authorization', 'api-key'],
+    metricsEndpoint: '/metrics'
+  };
+
+  // Merge with user-provided logging config if exists
+  if (config.logging) {
+    return { ...defaultLoggingConfig, ...config.logging };
+  }
+
+  return defaultLoggingConfig;
+};
+
+/**
  * Load configuration from JSON file
  * @param {string} configPath - Path to config.json
  * @returns {{modelMapping: Object, inferenceServerUrl: string, baseUrl: string, apiKey: string}}
@@ -69,6 +92,9 @@ const loadConfig = (configPath) => {
     if (process.env.INFERENCE_API_KEY) {
       config.inferenceApiKey = process.env.INFERENCE_API_KEY;
     }
+
+    // Add default logging configuration
+    config.logging = mergeLoggingConfig(config);
 
     return config;
   } catch (err) {

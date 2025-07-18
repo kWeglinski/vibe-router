@@ -9,6 +9,7 @@ const { loadConfig } = require('./config/config');
 const { getAvailableModels } = require('./models/modelMapper');
 const { handleCompletionsRequest } = require('./routes/completions');
 const { handleModelsRequest } = require('./routes/models');
+const { handleLoggingStatsRequest } = require('./routes/loggingStats');
 
 // Load configuration
 let config;
@@ -45,6 +46,7 @@ app.use(cors({ origin: '*' }));
 // Setup routes
 app.get('/v1/models', (req, res) => handleModelsRequest(req, res, config));
 app.post('/v1/completions', (req, res) => handleCompletionsRequest(req, res, config));
+app.get('/v1/logs/stats', (req, res) => handleLoggingStatsRequest(req, res, config));
 
 // Start the proxy server
 const PORT = process.env.PORT || 3001;

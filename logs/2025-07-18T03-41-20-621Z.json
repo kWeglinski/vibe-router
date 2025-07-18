@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-18T03:41:20.621Z",
+  "request_id": "7143da3b-5ee5-4357-b475-d5d2efa49328",
+  "model": "devstral-small-2507-mlx",
+  "prompt": "Another test request with logging enabled",
+  "parameters": {
+    "model": "devstral-small-2507-mlx",
+    "prompt": "Another test request with logging enabled",
+    "max_tokens": 10
+  },
+  "response": "",
+  "metadata": {
+    "processing_time_ms": 2,
+    "tokens_used": 0,
+    "status": "error"
+  }
+}

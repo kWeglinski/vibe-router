@@ -10,6 +10,27 @@ const path = require('path');
 const ensureTrailingSlash = (url) => url.endsWith('/') ? url : `${url}/`;
 
 /**
+ * Get environment variable or return default value
+ * @param {string} name - Environment variable name
+ * @param {*} defaultValue - Default value if not set
+ * @returns {*} Value from environment or default
+ */
+const getEnv = (name, defaultValue) => {
+  if (process.env[name] !== undefined) {
+    // Handle boolean values
+    if (process.env[name].toLowerCase() === 'true') return true;
+    if (process.env[name].toLowerCase() === 'false') return false;
+
+    // Handle numeric values
+    if (!isNaN(Number(process.env[name]))) return Number(process.env[name]);
+
+    // Return string value
+    return process.env[name];
+  }
+  return defaultValue;
+};
+
+/**
  * Load configuration from JSON file
  * @param {string} configPath - Path to config.json
  * @returns {{modelMapping: Object, inferenceServerUrl: string, baseUrl: string, apiKey: string}}
@@ -68,6 +89,21 @@ const loadConfig = (configPath) => {
 
     if (process.env.INFERENCE_API_KEY) {
       config.inferenceApiKey = process.env.INFERENCE_API_KEY;
+    }
+
+    // Handle logging configuration
+    config.logging = {
+      enabled: getEnv('ENABLE_LOGGING', false),
+      storage: getEnv('LOGGING_STORAGE', 'filesystem'),
+      path: getEnv('LOGGING_PATH', './logs'),
+      embedding_model: getEnv('EMBEDDING_MODEL', 'text-embedding-ada-002'),
+      retention_days: getEnv('LOGGING_RETENTION_DAYS', 30),
+      batch_size: getEnv('LOGGING_BATCH_SIZE', 100)
+    };
+
+    // Override with config.json values if present
+    if (config.loggingConfig) {
+      Object.assign(config.logging, config.loggingConfig);
     }
 
     return config;

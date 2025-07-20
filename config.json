@@ -1,5 +1,4 @@
 
-
 {
   "apis": {
     "lmstudio": {
@@ -20,6 +19,14 @@
       "name": "qwen3-30b-a3b-dwq",
       "api": "lmstudio"
     }
+  },
+  "loggingConfig": {
+    "enabled": true,
+    "storage": "filesystem",
+    "path": "./logs",
+    "embedding_model": "text-embedding-ada-002",
+    "retention_days": 30,
+    "batch_size": 100
   }
 }
 
